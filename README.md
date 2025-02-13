@@ -1,5 +1,5 @@
 # Minecraft Backup Script (rsync + S3)
-
+Version: v.1.1
 This script creates consistent backups of Minecraft servers using `rsync`, compresses them, and uploads them to an Amazon S3 bucket. It minimizes downtime by pausing world saves instead of stopping the server.
 
 ## Features
