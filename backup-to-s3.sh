@@ -1,5 +1,5 @@
 #!/bin/bash
-
+# Version 1.1
 # This script uses rsync to create snapshots.
 # Configuration
 BUCKET_NAME="sooknu-mc"                  # Amazon S3 bucket name
@@ -8,7 +8,7 @@ DATE_FOLDER=$(date +%Y-%m-%d)              # Folder name in S3 for this backup's
 GRACE_PERIOD=15                          # Grace period in seconds before pausing the server
 DEFAULT_FREQUENCY="daily"                # Default backup frequency
 DRY_RUN=false                            # Dry run mode (true/false)
-MAX_BACKUPS=7                            # Maximum number of backups to keep in S3
+MAX_BACKUPS=2                            # Maximum number of backups to keep in S3
 LOG_FILE="/home/ubuntu/backup-to-s3.log"   # Log file location
 
 # Array to track which services have been paused
@@ -106,8 +106,9 @@ mkdir -p "$BACKUP_DIR"
 # Format: folder:service:frequency (service and frequency are optional)
 CONFIGURATION=(
     "/home/ubuntu/lobby:lobby"
-    "/home/ubuntu/mc2:mc2"
-    "/home/ubuntu/mc1:mc1"
+    "/home/ubuntu/mc2:mc1"
+    "/home/ubuntu/mc1:mc2"
+    "/home/ubuntu/mc3:mc3"
     "/home/ubuntu/velocity:velocity"
 )
 
@@ -162,7 +163,7 @@ compress_snapshot() {
 delete_old_backups() {
     log "Checking for old backups in S3 bucket $BUCKET_NAME..."
     # List all backup folders in the S3 bucket, sorted by date (oldest first)
-    backup_folders=$(aws s3 ls "s3://$BUCKET_NAME/" | grep -E '^PRE [0-9]{4}-[0-9]{2}-[0-9]{2}/$' | awk '{print $2}' | sort)
+    backup_folders=$(aws s3 ls "s3://$BUCKET_NAME/" | grep -E '^[[:space:]]*PRE[[:space:]]+[0-9]{4}-[0-9]{2}-[0-9]{2}/$' | awk '{print $2}' | sort)
 
     # Count the number of backup folders
     backup_count=$(echo "$backup_folders" | wc -l)
